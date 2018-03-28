@@ -1,0 +1,24 @@
+{
+  "name": "nodechat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alidar40/NodeChat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Alidar40/NodeChat/issues"
+  },
+  "homepage": "https://github.com/Alidar40/NodeChat#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "save": "^2.3.2",
+    "socket.io": "^2.0.4"
+  }
+}
