@@ -2,9 +2,9 @@ const path = require('path');
 const express = require('express')
 const http = require('http')
 const socketIO = require('socket.io')
-const log = require('../lib/log')(module);
-const config = require('../config');
-var HttpError = require('../error').HttpError;
+const log = require('./lib/log')(module);
+const config = require('./config');
+var HttpError = require('./error/error').HttpError;
 
 const publicPath = path.join(__dirname, '../public');
 var app = express();
@@ -12,8 +12,8 @@ var server = http.createServer(app);
 var io = socketIO(server, { wsEngine: 'ws' });
 
 
-app.use(require('../middleware/sendHttpError'));
-require('../routes')(app);
+app.use(require('./middleware/sendHttpError'));
+require('./routes')(app);
 
 app.use(express.static(publicPath));
 app.use(function(err, req, res, next) {
