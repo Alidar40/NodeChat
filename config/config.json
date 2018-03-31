@@ -1,0 +1,23 @@
+{
+    "port": 3000,
+    "status": "development",
+    "mongoose": {
+        "uri": "mongodb://KirillRu:123456@ds121289.mlab.com:21289/bestchatbd",
+        "options": {
+          "server": {
+            "socketOptions": {
+              "keepAlive": 1
+            }
+          }
+        }
+      },
+    "session": {
+        "secret": "KillerIsJim",
+        "key": "sid",
+        "cookie": {
+          "path": "/",
+          "httpOnly": true,
+          "maxAge": null
+        }
+      }
+}

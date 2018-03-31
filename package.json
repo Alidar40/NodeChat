@@ -18,7 +18,11 @@
   "homepage": "https://github.com/Alidar40/NodeChat#readme",
   "dependencies": {
     "express": "^4.16.3",
+    "mongodb": "^3.0.5",
+    "mongoose": "^5.0.12",
+    "nconf": "^0.10.0",
     "save": "^2.3.2",
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.0.4",
+    "winston": "^2.4.1"
   }
 }
