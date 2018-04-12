@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <div class="container">
+        <form action="/register" method="post">
+            <label>Name</label><br>
+            <input type="text" name="name" /><br><br>
+
+            <label>E-mail</label><br>
+            <input type="text" name="email" /><br><br>
+
+            <label>Password</label><br>
+            <input type="password" name="password" /><br><br>
+
+            <button type="submit" name="submit">Register</button>
+        </form>
+        
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/libs/jquery-3.3.1.min.js"></script>
+    <script>
+       $("form").submit(function(e) {
+            e.preventDefault(); // Prevents the page from refreshing
+            var $this = $(this); // `this` refers to the current form element
+            $.post(
+                $this.attr("action"), // Gets the URL to sent the post to
+                $this.serialize(), // Serializes form data in standard format
+                function(data) { /** code to handle response **/ },
+                "json" // The format the response should be in
+            );
+        });
+    </script>
+    
+</body>
+
+</html>

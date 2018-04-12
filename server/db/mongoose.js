@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
-var config = require('./../config');
 
-mongoose.connect(config.get('mongoose:uri'));
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.MONGODB_URI);
 
-module.exports = mongoose;
+module.exports = {mongoose};

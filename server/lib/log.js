@@ -1,5 +1,5 @@
 var winston = require('winston');
-const config = require('./../config');
+const config = require('./../config/config');
 
 
 function getLogger(module) {
@@ -11,7 +11,8 @@ function getLogger(module) {
     transports: [
       new winston.transports.Console({
         colorize: true,
-        level: (config.get('status') == 'development') ? 'debug' : 'error',// if 'development' => 'debug' else 'error'
+        //level: (config.get('status') == 'development') ? 'debug' : 'error',// if 'development' => 'debug' else 'error'
+        level: 'debug',
         label: path
       })
     ]

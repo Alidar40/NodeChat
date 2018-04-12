@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const config = require('./../config');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
@@ -7,6 +6,13 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 
 var UserSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    require: true,
+    trim: true,
+    minlength: 1,
+    maxlength: 30
+  },
   email: {
     type: String,
     required: true,
@@ -32,7 +38,12 @@ var UserSchema = new mongoose.Schema({
       type: String,
       required: true
     }
-  }]
+  }],
+  chats: [
+    {
+      id: String
+    }
+  ]
 });
 
 UserSchema.methods.toJSON = function () {
@@ -99,6 +110,16 @@ UserSchema.statics.findByCredentials = function (email, password) {
         }
       });
     });
+  });
+};
+
+UserSchema.statics.findByEmail = function (email) {
+  var User = this;
+
+  return User.findOne({email}).then((user) => {
+    if (!user) {
+      return Promise.reject();
+    }
   });
 };
 

@@ -1,4 +1,14 @@
 {
+    "test": {
+      "PORT": 3000,
+      "MONGODB_URI": "mongodb://localhost:27017/TodoAppTest",
+      "JWT_SECRET": "poijasdf98435jpgfdpoij3"
+    },
+    "development": {
+      "PORT": 3000,
+      "MONGODB_URI": "mongodb://localhost:27017/NodeChat",
+      "JWT_SECRET": "pojiaj234oi234oij234oij4"
+    },
     "port": 3000,
     "status": "development",
     "salt": "dfce328524eac3edeceed32d070234a1",

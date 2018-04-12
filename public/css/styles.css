@@ -1,0 +1,60 @@
+.message-input{
+    padding: 8px 5px;
+    position: fixed;
+    bottom: 0;
+    left: 15%;
+}
+
+.messages{
+    padding: 8px 5px;
+    position: fixed;
+    bottom: 0;
+    left: 15%;
+    size: 100%;
+    width: 200;
+}
+
+.chats{
+    background: #2a2c36;
+    color: #eee;
+    position: fixed;
+    height: 100%;
+    width: 290px;
+    overflow: hidden;
+    left: 0;
+    bottom: 0;
+    margin: 0;
+}
+
+#new-chat{
+    padding: 8px 5px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    size: 30px;
+    width: 290px;
+    margin: 0;
+}
+
+#message-input{
+    padding: 8px 5px;
+    position: fixed;
+    bottom: 0;
+    left: 290px;
+    height: 15px;
+    width: 78.5%;
+}
+
+#send-message{
+    padding: 8px 5px;
+    position: fixed;
+    bottom: 0;
+    right: 66px;
+}
+
+#add-user{
+    padding: 8px 5px;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
