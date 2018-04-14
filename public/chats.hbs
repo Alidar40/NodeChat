@@ -8,11 +8,12 @@
 
 <body>
     <div class="chats">
-        <ul >chats here</ul>
+        <ul id="chats"></ul>
         <button id="new-chat">New chat</button>
     </div>
     
     <ul id="messages" class="messages"></ul>
+
     <div class="message-input">
         <form action="">
             <input id="message-input" type="text" placeholder="Type your message here" autocomplete="off" width="100" size="200"/>
@@ -36,6 +37,29 @@
             });
         });
     </script>
+
+    <script>
+        $(function() {
+            //$("#new-chat").click
+            $( document ).ready(function() {
+                $.ajax({
+                    url: "/api/chats",
+                    type: 'GET',
+                    dataType: "json",
+                    //data: {'name': "name"},
+                    //data: JSON.stringify({name: "Dennis", address: {city: "Dub", country: "IE"}}),
+                    success: function(data){
+                        var index;
+                        for(i = 0; i < data.length; i++)
+                        {
+                            $(".chats").append("<ul>" + data[i] + "</ul>");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    
     
 </body>
 

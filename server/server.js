@@ -7,6 +7,7 @@ const http = require('http')
 const socketIO = require('socket.io')
 const log = require('./lib/log')(module);
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const {ObjectID} = require('mongodb');
 const hbs = require('hbs');
 
@@ -29,10 +30,16 @@ const port = process.env.PORT;
 
 app.use(require('./middleware/sendHttpError'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 app.set('views', path.join(__dirname, '../public'));
 app.set('view engine', 'hbs');
+/*app.use(session({
+  store: sessionStore, 
+  secret: config.session.secret, 
+  cookie: {expires: new Date(253402300000000)}  // Approximately Friday, 31 Dec 9999 23:59:59 GMT
+}))  */
 
 
 //-----------CONTROLERS-------------------
@@ -72,14 +79,16 @@ app.post('/login', (req, res) => {
   User.findByCredentials(body.email, body.password).then((user) => {
     return user.generateAuthToken().then((token) => {
       //return res.header('x-auth', token).send(user);
-      res.setHeader('x-auth', token);//.send(user);
-      return res.send(user);
+      //res.setHeader('x-auth', token);//.send(user);
+      res.clearCookie('x-auth');
+      res.cookie('x-auth', token, {expires: new Date(253402300000000)});
+      //res.send(user);
+      return res.redirect('/chats');
     });
   }).catch((e) => {
     console.log(e);
     res.status(400).send(e);
   });
-  //res.redirect('/chats');
 });
 
 app.delete('/users/me/token', authenticate, (req, res) => {
@@ -119,24 +128,76 @@ app.get('/user/:id', function(req, res, next) {
 });
 
 //CHAT
-app.get('/chats', authenticate, (req, res, next) => {
-  req.user.chats.forEach((element) => {
+app.get('/api/chats', authenticate, (req, res, next) => {  
+  var chats = [];
+  var index;
+  number_processed = 0;
+  total = req.user.chats.length;
+  res.setHeader('Content-Type', 'application/json');
+
+  for(index = 0; index < req.user.chats.length; ++index) {
+    element = req.user.chats[index];
     try {
       var id = new ObjectID(element.id);
     } catch (e) {
       next(404);
       return;
     }
-  
-    Chat.findById(id, function(err, chat) {
+    //console.log("1");
+
+    Chat.findById(id, function(err, chat, next) {
       if (err) return next(err);
       if (!chat) {
         return next(404);
       }
-      res.send(chat);
+      
+      chats.push(chat.name);
+      //res.write(chat.name);
+      console.log("write");
+      //number_processed = number_processed  + 1;
+      number_processed++;
+      //console.log(number_processed);
+      if(number_processed == req.user.chats.length)
+      {
+        console.log(chats);
+        //res.end();
+        res.send(chats)
+      }
+      //console.log(chat.name);
+      //res.send(chats);
+      //res.json(chat);
+      //console.log("2");
     });
-  });
-  res.render("chats.hbs");
+    
+  }
+
+  /*req.user.chats.forEach((element) => {
+    try {
+      var id = new ObjectID(element.id);
+    } catch (e) {
+      next(404);
+      return;
+    }
+    console.log("1");
+
+    Chat.findById(id, function(err, chat, next) {
+      if (err) return next(err);
+      if (!chat) {
+        return next(404);
+      }
+      chats.push(chat.name);
+      console.log(chat.name);
+      res.send(chats);
+      //res.json(chat);
+      //console.log("2");
+    });
+  });*/
+  //console.log("2");
+  //res.json(chats);
+});
+
+app.get('/chats', authenticate, (req, res, next) => {  
+  return res.render("chats.hbs");
 })
 
 app.get('/createChat', authenticate, (req, res) => {
