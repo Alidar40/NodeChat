@@ -10,11 +10,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const {ObjectID} = require('mongodb');
 const hbs = require('hbs');
+const cookie = require('cookie');
 
 var HttpError = require('./error/error').HttpError;
-//var User = require('./models/user');
-//var Chat = require('./models/chat');
-//var Messages = require('./models/messages');
 var {mongoose} = require('./db/mongoose');
 var {User} = require('./models/user');
 var {Chat} = require('./models/chat');
@@ -35,12 +33,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 app.set('views', path.join(__dirname, '../public'));
 app.set('view engine', 'hbs');
-/*app.use(session({
-  store: sessionStore, 
-  secret: config.session.secret, 
-  cookie: {expires: new Date(253402300000000)}  // Approximately Friday, 31 Dec 9999 23:59:59 GMT
-}))  */
-
 
 //-----------CONTROLERS-------------------
 app.get('/', (req, res) => {
@@ -75,14 +67,11 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   var body = _.pick(req.body, ['email', 'password']);
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  //res.json(body);
+  
   User.findByCredentials(body.email, body.password).then((user) => {
     return user.generateAuthToken().then((token) => {
-      //return res.header('x-auth', token).send(user);
-      //res.setHeader('x-auth', token);//.send(user);
       res.clearCookie('x-auth');
       res.cookie('x-auth', token, {expires: new Date(253402300000000)});
-      //res.send(user);
       return res.redirect('/chats');
     });
   }).catch((e) => {
@@ -118,7 +107,7 @@ app.get('/user/:id', function(req, res, next) {
     return;
   }
 
-  User.findById(id, function(err, user) { // ObjectID
+  User.findById(id, function(err, user) { 
     if (err) return next(err);
     if (!user) {
       return next(404);
@@ -143,7 +132,6 @@ app.get('/api/chats', authenticate, (req, res, next) => {
       next(404);
       return;
     }
-    //console.log("1");
 
     Chat.findById(id, function(err, chat, next) {
       if (err) return next(err);
@@ -151,53 +139,29 @@ app.get('/api/chats', authenticate, (req, res, next) => {
         return next(404);
       }
       
-      chats.push(chat.name);
-      //res.write(chat.name);
-      console.log("write");
-      //number_processed = number_processed  + 1;
+      chats.push(chat);
       number_processed++;
-      //console.log(number_processed);
       if(number_processed == req.user.chats.length)
       {
-        console.log(chats);
-        //res.end();
         res.send(chats)
       }
-      //console.log(chat.name);
-      //res.send(chats);
-      //res.json(chat);
-      //console.log("2");
     });
     
   }
-
-  /*req.user.chats.forEach((element) => {
-    try {
-      var id = new ObjectID(element.id);
-    } catch (e) {
-      next(404);
-      return;
-    }
-    console.log("1");
-
-    Chat.findById(id, function(err, chat, next) {
-      if (err) return next(err);
-      if (!chat) {
-        return next(404);
-      }
-      chats.push(chat.name);
-      console.log(chat.name);
-      res.send(chats);
-      //res.json(chat);
-      //console.log("2");
-    });
-  });*/
-  //console.log("2");
-  //res.json(chats);
 });
 
 app.get('/chats', authenticate, (req, res, next) => {  
   return res.render("chats.hbs");
+})
+
+app.get('/api/getMessages', authenticate, (req, res) => {
+  Messages.findOne({chatId: req.query.chatId}).then(function(chat) {
+    if(!chat){
+      throw new Error('(from: /api/getMessages) No record found.');
+    } 
+    
+    res.send(chat.messages);
+  });
 })
 
 app.get('/createChat', authenticate, (req, res) => {
@@ -245,7 +209,6 @@ app.post('/addUser', authenticate, (req, res) => {
       newUser = user;
     }
   });
-  //res.status(200).send();
   
   chat.membersIds.push({id: newUser});
   chat.save().then(() => {
@@ -259,40 +222,39 @@ app.post('/addUser', authenticate, (req, res) => {
 //-----------SOCKETS-------------------
 app.use(express.static(publicPath));
 app.use(function(err, req, res, next) {
-    if (typeof err == 'number') { // next(404);
+    if (typeof err == 'number') { 
       err = new HttpError(err);
     }
     res.sendHttpError(err);
-    /* if (err instanceof HttpError) {
-      res.sendHttpError(err);
-    } else {
-      if (app.get('env') == 'development') {
-        express.errorHandler()(err, req, res, next);
-      } else {
-        log.error(err);
-        err = new HttpError(500);
-        res.sendHttpError(err);
-      }
-    } */
   });
 
 
   io.on('connection', (socket) => {
     log.info('user connected');
+    var cookies = cookie.parse(socket.handshake.headers.cookie, 'x-auth');
+    var userId = cookies['x-auth']
 
-    socket.on('send message', (msg) => {
+    socket.on('send message', (msg, id) => {
         msg = msg.trim();
-        log.info('new message: ' + msg);
-        var newMsg = new Messages({message: msg});
-        newMsg.save();
-        io.emit('send message', msg);
+        var newMsg;
+        Messages.findOne({chatId: id}).then(function(chat) {
+          if(!chat){
+            newMsg = new Messages({"chatId": id, "messages": [{"authorsId": userId, "message": msg}]});
+          } 
+          else {
+            newMsg = chat;
+            newMsg.messages.push({"authorsId": userId, "message": msg});
+          }
+          newMsg.save();
+          io.emit('send message', msg);
+
+        });
     });
     
     socket.on('disconnect', () => {
         log.info('user disconnected');
     });
 
-    
 });
 
 server.listen(port, () => {
