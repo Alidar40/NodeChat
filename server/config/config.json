@@ -1,12 +1,12 @@
 {
     "test": {
       "PORT": 3000,
-      "MONGODB_URI": "mongodb://localhost:27017/TodoAppTest",
+      "MONGODB_URI": "mongodb://KirillRu:123456@ds121289.mlab.com:21289/bestchatbd",
       "JWT_SECRET": "poijasdf98435jpgfdpoij3"
     },
     "development": {
       "PORT": 3000,
-      "MONGODB_URI": "mongodb://localhost:27017/NodeChat",
+      "MONGODB_URI": "mongodb://KirillRu:123456@ds121289.mlab.com:21289/bestchatbd",
       "JWT_SECRET": "pojiaj234oi234oij234oij4"
     },
     "port": 3000,

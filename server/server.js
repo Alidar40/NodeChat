@@ -238,15 +238,24 @@ app.use(function(err, req, res, next) {
         msg = msg.trim();
         var newMsg;
         Messages.findOne({chatId: id}).then(function(chat) {
-          if(!chat){
-            newMsg = new Messages({"chatId": id, "messages": [{"authorsId": userId, "message": msg}]});
-          } 
-          else {
-            newMsg = chat;
-            newMsg.messages.push({"authorsId": userId, "message": msg});
-          }
-          newMsg.save();
-          io.emit('send message', msg);
+          //Получение ника пользователя по его куке
+          User.findByToken(userId).then((user) => {
+              if(!chat){
+                newMsg = new Messages({"chatId": id, "messages": [{"authorsName": user.name, "message": msg}]});
+              } 
+              else {
+                newMsg = chat;
+                newMsg.messages.push({"authorsName": user.name, "message": msg});
+              }
+              newMsg.save();
+              //Отправка сообщения пользователям
+              //Поле (time) еще реализовано
+              io.emit('send message', "(time)", user.name, msg);
+          }).catch((e) => {
+              console.log(e);
+              res.status(400).send(e);
+          });
+
 
         });
     });

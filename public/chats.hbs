@@ -35,8 +35,8 @@
                 $('#message-input').val('');
                 return false;
             });
-            socket.on('send message', (msg) => {
-                $('#messages').append($('<p>').text(msg));
+            socket.on('send message', (date, authorsName, msg) => {
+                $('#messages').append($('<p>').text(date + " " + authorsName + ": " +  msg));
             });
         });
     </script>
