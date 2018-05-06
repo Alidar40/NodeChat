@@ -45,6 +45,7 @@
 
     <!-- Trigger/Open The Modal -->
     <button id="addUserBtn" onclick="openAddUserModal()">Add user</button>
+    
 
     <!-- The Modal -->
     <div id="addUserModal" class="modal">
@@ -79,7 +80,7 @@
                     $('#messages').append("<li class=\"element\">" + "<div class=\"title\">" + "<h4 class=\"author\" style=\"display: inline; font: 15px\">" + authorsName + " " + "</h4>" + "<label class=\"date\">" +  time.substring(11, 16) + " " + time.substring(0, 10) + "</label>" + "</div>" + "<p>" + msg +"</p>" + "</li>");
                     $('#messages').scroll();
                 }
-                //Сюда можно добавить систему оповещения о новых сообщениях в других чатах
+                document.getElementById(chatId).classList.add("chats-list-new-message")
             });
         });
     </script>
@@ -95,7 +96,7 @@
                         var index;
                         for(i = 0; i < data.length; i++)
                         {
-                            $("#chats").append("<li>" + "<button class=\"chats-list\"  onclick=\"getChatId(\'" + data[i]._id.trim() + "\')\" >"  + data[i].name + "</button>" +"</li>");
+                            $("#chats").append("<li>" + "<button class=\"chats-list\" id=\"" + data[i]._id.trim() + "\"  onclick=\"getChatId(\'" + data[i]._id.trim() + "\')\" >"  + data[i].name + "</button>" +"</li>");
                         }
                     }
                 });
@@ -108,6 +109,7 @@
             $("#current-chat").children('div').attr('id', chatId);
             $("#addUserChat").attr('value', chatId);
             $('#messages').empty();
+            document.getElementById(chatId).classList.remove("chats-list-new-message")
             $.ajax({
                     url: "/api/getMessages",
                     type: 'GET',
