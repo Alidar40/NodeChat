@@ -19,12 +19,7 @@ var ChatSchema = new mongoose.Schema({
         }
     ]
 });
-/*
-ChatSchema.statics.findById = function (id) {
-    var Chat = this;
-  
-    return Chat.findOne({"_id": new ObjectId(id)});
-  };*/
+
 
 var Chat = mongoose.model('Chat', ChatSchema);
 

@@ -123,6 +123,7 @@ UserSchema.statics.findByEmail = function (email) {
   });
 };
 
+
 UserSchema.pre('save', function (next) {
   var user = this;
 

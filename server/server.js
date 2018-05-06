@@ -135,19 +135,23 @@ app.get('/api/chats', authenticate, (req, res, next) => {
 
     Chat.findById(id, function(err, chat, next) {
       if (err) return next(err);
-      if (!chat) {
-        return next(404);
-      }
       
+      if (!chat) {
+        return next;
+        //return next(404);
+      }
+
       chats.push(chat);
+
       number_processed++;
+      
       if(number_processed == req.user.chats.length)
       {
         res.send(chats)
       }
     });
-    
   }
+
 });
 
 app.get('/chats', authenticate, (req, res, next) => {  
@@ -155,12 +159,12 @@ app.get('/chats', authenticate, (req, res, next) => {
 })
 
 app.get('/api/getMessages', authenticate, (req, res) => {
-  Messages.findOne({chatId: req.query.chatId}).then(function(chat) {
-    if(!chat){
+  Messages.findOne({chatId: req.query.chatId}).then(function(messages) {
+    if(!messages){
       throw new Error('(from: /api/getMessages) No record found.');
     } 
-    
-    res.send(chat.messages);
+
+    res.send(messages.messages);
   });
 })
 
@@ -169,12 +173,12 @@ app.get('/createChat', authenticate, (req, res) => {
 })
 
 app.post('/createChat', authenticate, (req, res) => {
+  
   var body = _.pick(req.body, ['name']);
   var newChat = new Chat({
     name: req.body.name,
     adminsId: req.user.id
   });
-
   newChat.membersIds.push({id: req.user._id});
 
   newChat.save().then(() => {
@@ -184,6 +188,9 @@ app.post('/createChat', authenticate, (req, res) => {
   }).catch((e) => {
     res.status(400).send(e);
   })
+
+  newMsg = new Messages({"chatId": newChat._id, "messages": [{"authorsId": req.user._id, "message": req.user.name + " создал чат"}]});
+  newMsg.save();
 });
 
 app.get('/addUser', authenticate, (req, res) => {
@@ -233,24 +240,41 @@ app.use(function(err, req, res, next) {
     log.info('user connected');
     var cookies = cookie.parse(socket.handshake.headers.cookie, 'x-auth');
     var userId = cookies['x-auth']
+    
+    
 
-    socket.on('send message', (msg, id) => {
-        msg = msg.trim();
-        var newMsg;
-        Messages.findOne({chatId: id}).then(function(chat) {
-          //Получение ника пользователя по его куке
-          User.findByToken(userId).then((user) => {
+    //Получение пользователя по его куке
+    User.findByToken(userId).then((user) => {
+      //Привязка сокета к id пользователя
+      socket.join(user.id)
+
+      socket.on('send message', (msg, id) => {
+          msg = msg.trim();
+          var newMsg;
+          Messages.findOne({chatId: id}).then(function(chat) {
+              //Сохранение сообщения в бд
               if(!chat){
-                newMsg = new Messages({"chatId": id, "messages": [{"authorsName": user.name, "message": msg}]});
+                newMsg = new Messages({"chatId": id, "messages": [{"authorsId": user._id, "authorsName": "Сервер", "message": msg}]});
               } 
               else {
                 newMsg = chat;
-                newMsg.messages.push({"authorsName": user.name, "message": msg});
+                newMsg.messages.push({"authorsId": user._id, "authorsName": user.name, "message": msg});
               }
               newMsg.save();
-              //Отправка сообщения пользователям
-              //Поле (time) еще реализовано
-              io.emit('send message', "(time)", user.name, msg);
+
+              //Отправка сообщения пользователям чата             
+              Chat.findById(id, function(err, chat, next) {
+                if (err) return next(err);
+                
+                if (!chat) {
+                  return next(404);
+                }
+               
+                for(index = 0; index < chat.membersIds.length; ++index) {
+                  io.to(chat.membersIds[index].id).emit('send message', user.name, msg, id);
+                }
+                
+              });
           }).catch((e) => {
               console.log(e);
               res.status(400).send(e);

@@ -9,8 +9,14 @@
 <body>
     <div class="chats">
         <ul id="chats"></ul>
-        <button id="new-chat">New chat</button>
+        <form method="post" action="/createChat">
+            <label>New chat name</label><br>
+            <input type="text" name="name"  /><br><br>
+
+            <button type="submit" name="submit">New chat</button>
+        </form>
     </div>
+    
     
     <ul id="messages" class="messages"></ul>
 
@@ -30,13 +36,17 @@
     <script>
         $(function () {
             var socket = io();
-            $('form').submit(function(){
+            $('.message-input').submit(function(){
                 socket.emit('send message', $('#message-input').val(), $('#current-chat').children('div').attr('id'));
                 $('#message-input').val('');
                 return false;
             });
-            socket.on('send message', (date, authorsName, msg) => {
-                $('#messages').append($('<p>').text(date + " " + authorsName + ": " +  msg));
+            socket.on('send message', (authorsName, msg, chatId) => {
+                var dt = new Date();
+                var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+                if (chatId == $('#current-chat').children('div').attr('id'))
+                    $('#messages').append($('<p>').text(time + " " + authorsName + ": " +  msg));
+                //Сюда можно добавить систему оповещения о новых сообщениях в других чатах
             });
         });
     </script>
@@ -74,7 +84,7 @@
                         var index;
                         for(i = 0; i < data.length; i++)
                         {
-                            $('#messages').append($('<p>').text(data[i].message));
+                            $('#messages').append($('<p>').text(data[i].created + " " + data[i].authorsName + ": " + data[i].message));
                         }
                     }
             });
