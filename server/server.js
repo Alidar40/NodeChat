@@ -168,11 +168,7 @@ app.get('/api/getMessages', authenticate, (req, res) => {
   });
 })
 
-app.get('/createChat', authenticate, (req, res) => {
-  res.render("createChat.hbs");
-})
-
-app.post('/createChat', authenticate, (req, res) => {
+app.post('/api/createChat', authenticate, (req, res) => {
   
   var body = _.pick(req.body, ['name']);
   var newChat = new Chat({
@@ -184,7 +180,7 @@ app.post('/createChat', authenticate, (req, res) => {
   newChat.save().then(() => {
     req.user.chats.push({id: newChat._id});
     req.user.save();
-    res.status(201).send();
+    res.status(201).send(newChat._id);
   }).catch((e) => {
     res.status(400).send(e);
   })
@@ -193,37 +189,56 @@ app.post('/createChat', authenticate, (req, res) => {
   newMsg.save();
 });
 
-app.get('/addUser', authenticate, (req, res) => {
-  res.render("addUser.hbs");
-})
-
-app.post('/addUser', authenticate, (req, res) => {
-  var chat = req.chat;
+app.post('/api/addUser', authenticate, (req, res) => {
   var user = req.user;
-  
+
+  chatId = req.body.addUserChat;
+  newUserEmail = req.body.addUserEmail; 
+
   if(!user.chats.find((el) => {
-    return el === chat._id;
+    return el.id == chatId;
   })){
-    return res.status(404).send();
+    return res.status(403).send("You heve not permissions to invite users in this chat");
   }
 
   var newUser;
-  User.findOne({email: req.body.email}).then((user) => {
+  User.findOne({email: newUserEmail}).then((user) => {
     if (!user) {
-      return res.status(404).send();
+      //throw new Error('(from: /api/addUser) user was not found.');
+      return res.status(404).send("user was not found");
     }
     else{
       newUser = user;
+      
+      if(newUser.chats.find((el) => {
+        return el.id == chatId;
+      })){
+        //return res.status(400).send({"message": "User is already in this chat"});
+        return res.status(400).send("User is already in this chat");
+      }
+
+      Chat.findOne({_id: chatId}).then((_chat) => {
+        if (!_chat) {
+          throw new Error('(from: /api/addUser) chat was not found.');
+          return res.status(404).send();
+        }
+        else{
+          var chat = _chat;
+          
+          chat.membersIds.push({id: newUser._id});
+
+          chat.save().then(() => {
+            newUser.chats.push({id: chatId});
+            newUser.save().then(() => {
+              res.status(201).send();
+            })
+          }).catch((e) => {
+            res.status(400).send(e);
+          })
+        }
+      });
     }
   });
-  
-  chat.membersIds.push({id: newUser});
-  chat.save().then(() => {
-    newUser.chats.push({id: chat._id});
-    res.status(201).send();
-  }).catch((e) => {
-    res.status(400).send(e);
-  })
 });
 
 //-----------SOCKETS-------------------
@@ -249,6 +264,10 @@ app.use(function(err, req, res, next) {
       socket.join(user.id)
 
       socket.on('send message', (msg, id) => {
+          if (id === ""){
+            return;
+          }
+
           msg = msg.trim();
           var newMsg;
           Messages.findOne({chatId: id}).then(function(chat) {
@@ -283,7 +302,7 @@ app.use(function(err, req, res, next) {
 
         });
     });
-    
+
     socket.on('disconnect', () => {
         log.info('user disconnected');
     });

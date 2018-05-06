@@ -7,28 +7,59 @@
 </head>
 
 <body>
-    <div class="chats">
-        <ul id="chats"></ul>
-        <form method="post" action="/createChat">
-            <label>New chat name</label><br>
-            <input type="text" name="name"  /><br><br>
+    <div class="chats-container" >
+        <ul class="chats" id="chats"></ul>
 
-            <button type="submit" name="submit">New chat</button>
-        </form>
+        
     </div>
     
+    <!-- Trigger/Open The Modal  -->
+    <button id="newChatBtn" onclick="openNewChatModal()">New chat</button> 
+
+    <!-- The Modal -->
+    <div id="newChatModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+
+            <form id="newChatForm" method="post" action="/api/createChat">
+                <label style="font: 18px \"Trebuchet MS\", Helvetica;">New chat name</label><br>
+                <input class="input" type="text" id="newChatName" name="newChatName"/><br><br>
+
+                <button class="btn model-btn" type="submit" name="submit">New chat</button>
+            </form>
+        </div>
+    </div>
     
     <ul id="messages" class="messages"></ul>
 
     <div class="message-input">
         <form action="">
-            <input id="message-input" type="text" placeholder="Type your message here" autocomplete="off" width="100" size="200"/>
+            <input class="message-input" id="message-input" type="text" placeholder="Type your message here" autocomplete="off" width="100" size="200"/>
             <div id="current-chat">
                 <div id=""></div>
             </div>
             <button id="send-message">Send</button>
         </form>
-        <button id="add-user">Add user</button>
+    </div>
+
+    <!-- Trigger/Open The Modal -->
+    <button id="addUserBtn" onclick="openAddUserModal()">Add user</button>
+
+    <!-- The Modal -->
+    <div id="addUserModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+
+            <form id="addUserForm" method="post" action="/api/addUser">
+                <label style="font: 18px \"Trebuchet MS\", Helvetica;">New users e-mail</label><br>
+                <input class="input" type="text" id="addUserEmail" name="addUserEmail"/><br><br>
+                <input id="addUserChat" name="addUserChat" hidden="true"></input>
+
+                <button class="btn model-btn" type="submit" name="submit">Add new user</button>
+            </form>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -44,8 +75,10 @@
             socket.on('send message', (authorsName, msg, chatId) => {
                 var dt = new Date();
                 var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-                if (chatId == $('#current-chat').children('div').attr('id'))
-                    $('#messages').append($('<p>').text(time + " " + authorsName + ": " +  msg));
+                if (chatId == $('#current-chat').children('div').attr('id')){
+                    $('#messages').append("<li class=\"element\">" + "<div class=\"title\">" + "<h4 class=\"author\" style=\"display: inline; font: 15px\">" + authorsName + " " + "</h4>" + "<label class=\"date\">" +  time.substring(11, 16) + " " + time.substring(0, 10) + "</label>" + "</div>" + "<p>" + msg +"</p>" + "</li>");
+                    $('#messages').scroll();
+                }
                 //Сюда можно добавить систему оповещения о новых сообщениях в других чатах
             });
         });
@@ -62,7 +95,7 @@
                         var index;
                         for(i = 0; i < data.length; i++)
                         {
-                            $(".chats").append("<ul>" + "<button onclick=\"getChatId(\'" + data[i]._id.trim() + "\')\" >"  + data[i].name + "</button>" +"</ul>");
+                            $("#chats").append("<li>" + "<button class=\"chats-list\"  onclick=\"getChatId(\'" + data[i]._id.trim() + "\')\" >"  + data[i].name + "</button>" +"</li>");
                         }
                     }
                 });
@@ -73,6 +106,7 @@
     <script>
         function getChatId (chatId) {
             $("#current-chat").children('div').attr('id', chatId);
+            $("#addUserChat").attr('value', chatId);
             $('#messages').empty();
             $.ajax({
                     url: "/api/getMessages",
@@ -84,13 +118,123 @@
                         var index;
                         for(i = 0; i < data.length; i++)
                         {
-                            $('#messages').append($('<p>').text(data[i].created + " " + data[i].authorsName + ": " + data[i].message));
+                            console.log(typeof data[i].created);
+                            $('#messages').append("<li class=\"element\">" + "<div class=\"title\">" + "<h4 class=\"author\" style=\"display: inline; font: 15px\">" + data[i].authorsName + " " + "</h4>" + "<label class=\"date\">" +  data[i].created.substring(11, 16) + " " +data[i].created.substring(0, 10) + "</label>" + "</div>" + "<p>" + data[i].message +"</p>" + "</li>");
+                            $('#messages').scroll();
                         }
                     }
             });
         }
     </script>
     
+    <script>
+        function openNewChatModal(){
+            // Get the modal
+            var modal = document.getElementById('newChatModal');
+
+            // Get the button that opens the modal
+            var btn = document.getElementById("newChatBtn");
+
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+
+            // When the user clicks the button, open the modal 
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+    </script>
+
+    <script>
+        function openAddUserModal(){
+            // Get the modal
+            var modal = document.getElementById('addUserModal');
+
+            // Get the button that opens the modal
+            var btn = document.getElementById("addUserBtn");
+
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+
+            // When the user clicks the button, open the modal 
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+    </script>
+
+    <script>
+       $("#newChatForm").submit(function(event) {
+            /* stop form from submitting normally */
+            event.preventDefault();
+            /* get the action attribute from the <form action=""> element */
+            var $form = $( this ),
+                url = $form.attr( 'action' );
+
+            /* Send the data using post with element id name*/
+            var newChatName = $('#newChatName').val();
+            var posting = $.post( url, { name: newChatName} );
+
+            /* Alerts the results */
+            posting.done(function( data ) {
+                location.reload();
+
+            });
+            posting.fail(function(data) {
+                $("#addUserForm").append("<p style=\"font: 18px \"Trebuchet MS\", Helvetica;\">"+JSON.stringify(data.responseText));
+            });
+        });
+    </script>
+        
+    <script>
+        $("#addUserForm").submit(function(event) {
+            /* stop form from submitting normally */
+            event.preventDefault();
+            /* get the action attribute from the <form action=""> element */
+            var $form = $( this ),
+                url = $form.attr( 'action' );
+
+            /* Send the data using post with element id name*/
+            var addUserEmail = $('#addUserEmail').val();
+            var addUserChat = $('#addUserChat').val();
+            var posting = $.post( url, { addUserEmail: addUserEmail, addUserChat: addUserChat} );
+
+            /* Alerts the results */
+            posting.done(function( data ) {
+                var modal = document.getElementById('addUserModal');
+                modal.style.display = "none";
+                socket.emit('send message', "User with email " + addUserEmail + " joined via invitation", addUserChat);
+            });
+            posting.fail(function(data) {
+                $("#addUserForm").append("<p style=\"font: 18px \"Trebuchet MS\", Helvetica;\">"+JSON.stringify(data.responseText));
+            });
+        });
+    </script>
+
 </body>
 
 </html>

@@ -3,21 +3,30 @@
 
 <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="./css/styles.css" />
 </head>
 
 <body>
-    <!--<div class="container">-->
-        <form method="post" action="/login">
-            <label>E-mail</label><br>
-            <input type="text" name="email"  /><br><br>
+    <div class="login-container">
+        <div class="intro">
+            <p>Welcome to NodeChat!</p>
+            <p>Please, log in</p>
+        </div>
+        <hr class="hr">
+        <div class="login">
+            <form method="post" action="/login">
+                <label>E-mail</label><br>
+                <input class="input" type="text" name="email"  /><br><br>
 
-            <label>Password</label><br>
-            <input type="password" name="password"  /><br><br>
+                <label>Password</label><br>
+                <input class="input" type="password" name="password"  /><br><br>
 
-            <button type="submit" name="submit">Sign in</button>
-        </form>
-        
-    <!--</div>-->
+                <button class="btn login-submit-btn" type="submit" name="submit">Sign in</button>
+                <button class="btn login-submit-btn" ><a href="/register" style="text-decoration:none; color: black">Register</a></button>
+            </form>
+            
+        </div>
+    </div>
     
 </body>
 

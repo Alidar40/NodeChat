@@ -1,32 +1,98 @@
 .message-input{
-    padding: 8px 5px;
+    /*padding: 8px 5px;*/
     position: fixed;
     bottom: 0;
     left: 15%;
+    width: 74.8%;
+    height: 3.4%;
+    font: 18px "Trebuchet MS", Helvetica;
+    font-weight: lighter;
+    /*border: 1px solid green;*/
 }
 
 .messages{
+    background: rgb(226, 238, 231);
     padding: 8px 5px;
     position: fixed;
     bottom: 0;
     left: 15%;
     size: 100%;
-    width: 200;
+    width: 85%;
+    height: 100%;
+    overflow: scroll;
 }
 
-.chats{
-    background: #2a2c36;
+.messages.element{
+    bottom: 0;
+    left: 15%;
+    width: 74.8%;
+    height: 3.4%;
+    font: 18px "Trebuchet MS", Helvetica;
+    font-weight: lighter;
+}
+
+.messages.title{
+    display:flex;
+    margin-bottom:5px
+}
+/*.messages.title h4{
+    font-weight:600;
+    margin-right:10px
+}
+.messages.title span
+{color:#999}@media (max-width:600px){*{font-size:1rem}*/
+
+.messages.author{
+    margin-right:10px;
+    font: 15px "Trebuchet MS", Helvetica;
+    font-weight: lighter;
+    display: inline;
+}
+
+.messages.date{
+    font: 3px "Trebuchet MS", Helvetica;
+    font-weight: lighter;
+}
+
+
+.chats-container{
+    background: #a7dba7;/*#2a2c36;*/
     color: #eee;
     position: fixed;
     height: 100%;
-    width: 290px;
-    overflow: hidden;
+    width: 15%;
+    top: 0;
     left: 0;
-    bottom: 0;
-    margin: 0;
+    /*margin: 0;*/
+    /*overflow-y: scroll;*/
 }
 
-#new-chat{
+.chats{
+    list-style-type:none;
+    left: 0;
+    height: 94%;
+    overflow-y: auto;
+}
+
+.chats-list{
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+    padding: 8px 5px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4%;
+    text-align: left;
+    margin: 0; 
+}
+
+.chats-list:hover{
+    background-color: #4CAF50;
+    color: white;
+}
+
+/*#new-chat{
     padding: 8px 5px;
     position: fixed;
     bottom: 0;
@@ -34,27 +100,240 @@
     size: 30px;
     width: 290px;
     margin: 0;
-}
+}*/
 
-#message-input{
-    padding: 8px 5px;
-    position: fixed;
-    bottom: 0;
-    left: 290px;
-    height: 15px;
-    width: 78.5%;
-}
+
 
 #send-message{
+    size: 10%;
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+
     padding: 8px 5px;
     position: fixed;
     bottom: 0;
-    right: 66px;
+    right: 5%;
+    width: 5%;
+    height: 4%;
+    margin: 0;
 }
 
-#add-user{
+#send-message:hover{
+    background-color: #4CAF50;
+    color: white;
+}
+
+#newChatBtn{
+    size: 10%;
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+
+    padding: 8px 5px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 15%;
+    height: 4%;
+    margin: 0;
+}
+
+#newChatBtn:hover{
+    background-color: #4CAF50;
+    color: white;
+}
+
+#addUserBtn{
+    size: 10%;
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+
     padding: 8px 5px;
     position: fixed;
     bottom: 0;
     right: 0;
+    width: 5%;
+    height: 4%;
+    margin: 0;
+}
+
+#addUserBtn:hover{
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+
+
+
+.registration{
+    position: absolute;
+    top: 35%;
+    right: 25%;
+    font: 18px "Trebuchet MS", Helvetica;
+    margin: auto;
+    border: 3px solid green;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.registration-container{
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width:70%;
+    height: 70%;
+    margin: auto;
+    /*border: 3px solid green;
+    border-radius: 4px;*/
+    padding: 10px;
+}
+
+.login{
+    position: absolute;
+    top: 35%;
+    right: 25%;
+    font: 18px "Trebuchet MS", Helvetica;
+    margin: auto;
+    border: 3px solid green;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.login-container{
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width:70%;
+    height: 70%;
+    margin: auto;
+    /*border: 3px solid green;
+    border-radius: 4px;*/
+    padding: 10px;
+}
+
+.intro{
+    position: absolute;
+    top: 35%;
+    left: 25%;
+    font: 25px "Trebuchet MS", Helvetica;
+}
+
+.hr {
+    width: 0; 
+    left: 50%;
+    height: 600px;
+    border: 0px;
+    border-right: 3px solid green;
+    padding: 0;
+}
+
+.input{
+    width: 200px; 
+    height: 25px;
+    font: 18px "Trebuchet MS", Helvetica;
+    font-weight: lighter;
+    border: 1px solid green;
+    border-radius: 6px;
+}
+
+.btn{
+    background-color: #4CAF50; /* Green */
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.registration-submit-btn{
+    size: 10%;
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+}
+
+.registration-submit-btn:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.login-submit-btn{
+    size: 10%;
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+}
+
+.login-submit-btn:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.model-btn{
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    size: 10%;
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+}
+
+.model-btn:hover {
+    background-color: #4CAF50;
+    color: white;
 }
