@@ -22,7 +22,7 @@
                 <div class="dropdown-content">
                     <input type="button" value="Users" id="viewUserBtn" onclick="openViewUserModal()"></input>
                     <input type="button" value="Invite user" id="addUserBtn" onclick="openAddUserModal()"></input>
-                    <input type="button" value="Leave chat"></input>
+                    <input type="button" value="Leave chat" onclick="leaveChat()"></input>
                 </div>
             </li>
         </ul>
@@ -279,7 +279,19 @@
             });
         });
     </script>
-        
+
+    
+    <script>
+        function leaveChat(){
+            var chatId = $('#current-chat').children('div').attr('id');
+            var posting = $.post( "/api/leaveChat", { chatId: chatId} );
+
+            posting.done(function( data ) {
+                //Перезагрузить страницу
+            });
+        }
+    </script>
+
     <script>
         $("#addUserForm").submit(function(event) {
             event.preventDefault();
