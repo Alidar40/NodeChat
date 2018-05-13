@@ -75,6 +75,16 @@ UserSchema.methods.removeToken = function (token) {
   });
 };
 
+UserSchema.methods.leaveChat = function (chat) {
+  var user = this;
+
+  return user.update({
+    $pull: {
+      chats: { id: chat}
+    }
+  });
+};
+
 UserSchema.statics.findByToken = function (token) {
   var User = this;
   var decoded;

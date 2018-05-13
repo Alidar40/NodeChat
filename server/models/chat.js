@@ -20,6 +20,15 @@ var ChatSchema = new mongoose.Schema({
     ]
 });
 
+ChatSchema.methods.removeUser = function (userId) {
+    var chat = this;
+  
+    return chat.update({
+      $pull: {
+        membersIds: {userId}
+      }
+    });
+};
 
 var Chat = mongoose.model('Chat', ChatSchema);
 

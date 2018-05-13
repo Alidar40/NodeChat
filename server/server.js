@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser');
 const {ObjectID} = require('mongodb');
 const hbs = require('hbs');
 const cookie = require('cookie');
+var async = require('async');
 
 var HttpError = require('./error/error').HttpError;
 var {mongoose} = require('./db/mongoose');
@@ -279,12 +280,38 @@ app.post('/api/addUser', authenticate, isChatMember, (req, res) => {
   });
 });
 
+app.post('/api/leaveChat', authenticate, (req, res) => {
+  var user = req.user;
+  chatId = req.body.chatId;
+  async.waterfall([
+    function(callback) {
+      //Получаем чат по id
+      Chat.findOne({_id: chatId}, callback);
+    },
+    function(chat, callback) {
+      
+      
+      user.leaveChat(chatId).then(() => {
+      })
+      
+      chat.removeUser(user._id).then(() => {
+        res.status(201).send();
+      })
+      
+    },
+  ], function(err) {
+    log.error(err)
+  });
+
+});
+
 //-----------SOCKETS-------------------
 app.use(express.static(publicPath));
 app.use(function(err, req, res, next) {
     if (typeof err == 'number') { 
       err = new HttpError(err);
     }
+    log.error(err)
     res.sendHttpError(err);
   });
 
