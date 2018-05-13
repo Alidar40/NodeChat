@@ -14,7 +14,7 @@
                 <a href="javascript:void(0)" class="dropbtn" >NodeChat</a>
                 <div class="dropdown-content">
                     <input type="button" value="New chat" id="newChatBtn" onclick="openNewChatModal()"></input>
-                    <input type="button" value="Log out"></input>
+                    <input type="button" value="Log out" id="logout-btn" onclick="openLogoutModal()"></input>
                 </div>
             </li>
             <li class="navbar-el dropdown" id="chatname-container">
@@ -33,13 +33,26 @@
     </div>
      
     
+    <ul id="messages" class="messages"></ul>
+
+    <div class="message-input">
+        <form action="">
+            <input class="message-input" id="message-input" type="text" placeholder="Type your message here" autocomplete="off" width="100" size="200"/>
+            <div id="current-chat">
+                <div id=""></div>
+            </div>
+            <button id="send-message-btn"></button>
+        </form>
+    </div>
+
+    <!-- MODALS -->
     <div id="newChatModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
 
             <form id="newChatForm" method="post" action="/api/createChat">
                 <label style="font: 18px \"Trebuchet MS\", Helvetica;">New chat name</label><br>
-                <input class="input" type="text" id="newChatName" name="newChatName"/><br><br>
+                <input class="input" type="text" id="newChatName" name="newChatName" required  minlength="1" maxlength="25"/><br><br>
 
                 <button class="btn model-btn" type="submit" name="submit">New chat</button>
             </form>
@@ -53,42 +66,42 @@
             <ul id="current-chat-users"></ul>
         </div>
     </div>
-    
-    <ul id="messages" class="messages"></ul>
 
-    <div class="message-input">
-        <form action="">
-            <input class="message-input" id="message-input" type="text" placeholder="Type your message here" autocomplete="off" width="100" size="200"/>
-            <div id="current-chat">
-                <div id=""></div>
-            </div>
-            <button id="send-message-btn"></button>
-        </form>
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="logoutForm" method="post" action="/api/logout">
+                <label style="font: 18px \"Trebuchet MS\", Helvetica;">Are you sure you want to log out?</label><br>
+                <button class="btn model-btn" type="submit" name="submit">YES!</button>
+            </form>
+        </div>
     </div>
 
-    
     <div id="addUserModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
 
             <form id="addUserForm" method="post" action="/api/addUser">
                 <label style="font: 18px \"Trebuchet MS\", Helvetica;">New users e-mail</label><br>
-                <input class="input" type="text" id="addUserEmail" name="addUserEmail"/><br><br>
+                <input class="input" type="email" id="addUserEmail" name="addUserEmail" required minlength="1"/><br><br>
                 <input id="addUserChat" name="addUserChat" hidden="true"></input>
 
                 <button class="btn model-btn" type="submit" name="submit">Add new user</button>
             </form>
         </div>
     </div>
-
+    
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/libs/jquery-3.3.1.min.js"></script>
     <script>
         $(function () {
             var socket = io();
             $('.message-input').submit(function(){
-                socket.emit('send message', $('#message-input').val(), $('#current-chat').children('div').attr('id'));
-                $('#message-input').val('');
+                var msg = $('#message-input').val().trim();
+                if(msg !== ''){
+                    socket.emit('send message', msg, $('#current-chat').children('div').attr('id'));
+                    $('#message-input').val('');
+                }
                 return false;
             });
             socket.on('send message', (authorsName, msg, chatId) => {
@@ -132,9 +145,6 @@
             $("#addUserChat").attr('value', chatId);
             var chatname_cont = document.getElementById("chatname-container");
             var chatname_el = document.getElementById("chatname");
-            //console.log($("#chatname-container"));
-            //$("#chatname").empty();
-            //$("#chatname").append("" + chatName);
             chatname_cont.style.display = "block";
             chatname_el.innerHTML = chatName;
             $('#messages').empty();
@@ -161,26 +171,14 @@
     
     <script>
         function openNewChatModal(){
-            // Get the modal
             var modal = document.getElementById('newChatModal');
-
-            // Get the button that opens the modal
-            //var btn = document.getElementById("newChatBtn");
-
-            // Get the <span> element that closes the modal
             var span = document.getElementsByClassName("close")[0];
+            modal.style.display = "block";
 
-            // When the user clicks the button, open the modal 
-            //btn.onclick = function() {
-                modal.style.display = "block";
-            //}
-
-            // When the user clicks on <span> (x), close the modal
             span.onclick = function() {
                 modal.style.display = "none";
             }
 
-            // When the user clicks anywhere outside of the modal, close it
             window.onclick = function(event) {
                 if (event.target == modal) {
                     modal.style.display = "none";
@@ -191,26 +189,32 @@
 
     <script>
         function openAddUserModal(){
-            // Get the modal
             var modal = document.getElementById('addUserModal');
-
-            // Get the button that opens the modal
-            //var btn = document.getElementById("addUserBtn");
-
-            // Get the <span> element that closes the modal
             var span = document.getElementsByClassName("close")[0];
+            modal.style.display = "block";
 
-            // When the user clicks the button, open the modal 
-            //btn.onclick = function() {
-                modal.style.display = "block";
-            //}
-
-            // When the user clicks on <span> (x), close the modal
             span.onclick = function() {
                 modal.style.display = "none";
             }
 
-            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+    </script>
+
+    <script>
+        function openLogoutModal(){
+            var modal = document.getElementById('logoutModal');
+            var span = document.getElementsByClassName("close")[0];
+            modal.style.display = "block";
+            
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
             window.onclick = function(event) {
                 if (event.target == modal) {
                     modal.style.display = "none";
@@ -221,27 +225,16 @@
 
     <script>
         function openViewUserModal(){
-            // Get the modal
             var modal = document.getElementById('viewUsersModal');
 
-            // Get the button that opens the modal
-            //var btn = document.getElementById("addUserBtn");
-
-            // Get the <span> element that closes the modal
             var span = document.getElementsByClassName("close")[0];
 
-            // When the user clicks the button, open the modal 
-            //btn.onclick = function() {
-                modal.style.display = "block";
-            //}
+            modal.style.display = "block";
 
-            
-            // When the user clicks on <span> (x), close the modal
             span.onclick = function() {
                 modal.style.display = "none";
             }
 
-            // When the user clicks anywhere outside of the modal, close it
             window.onclick = function(event) {
                 if (event.target == modal) {
                     modal.style.display = "none";
@@ -249,8 +242,7 @@
             }
 
             var users = document.getElementById("current-chat-users");
-            var chatId = document.getElementById("current-chat");
-            users.append("!!!!!");
+            var chatId = $("#current-chat").children('div').attr('id');
 
             $.ajax({
                     url: "/api/getChatUsers",
@@ -260,67 +252,44 @@
                     },
                     success: function(data){
                         var index;
-                        console.log(data);
-                        users.append(data);
-                        users.append(JSON.stringify(data.responseText));
-                        console.log(JSON.stringify(data.responseText));
+                        users.innerHTML = '';
                         for(i = 0; i < data.length; i++){
-                            //console.log(typeof data[i]);
+                            users.append(data[i].name + " " + data[i].email);
                         }
                     }
-                    /*fail: function(data){
-                        console.log(JSON.stringify(data.responseText));
-                    }*/
             });
-
-            /*var getting = $.get( /api/getChatUsers, { chatId: chatId} );
-
-            getting.done(function( data ) {
-                console.log(data);
-            });
-            getting.fail(function(data) {
-                console.log(JSON.stringify(data.responseText));
-            });*/
         }
     </script>
 
     <script>
        $("#newChatForm").submit(function(event) {
-            /* stop form from submitting normally */
             event.preventDefault();
-            /* get the action attribute from the <form action=""> element */
             var $form = $( this ),
                 url = $form.attr( 'action' );
 
-            /* Send the data using post with element id name*/
             var newChatName = $('#newChatName').val();
             var posting = $.post( url, { name: newChatName} );
 
-            /* Alerts the results */
             posting.done(function( data ) {
                 location.reload();
 
             });
             posting.fail(function(data) {
-                $("#addUserForm").append("<p style=\"font: 18px \"Trebuchet MS\", Helvetica;\">"+JSON.stringify(data.responseText));
+                $("#newChatForm").append("<p style=\"font: 18px \"Trebuchet MS\", Helvetica;\">"+JSON.stringify(data.responseText));
             });
         });
     </script>
         
     <script>
         $("#addUserForm").submit(function(event) {
-            /* stop form from submitting normally */
             event.preventDefault();
-            /* get the action attribute from the <form action=""> element */
             var $form = $( this ),
                 url = $form.attr( 'action' );
 
-            /* Send the data using post with element id name*/
             var email = $('#addUserEmail').val();
             var chatId = $('#addUserChat').val();
             var posting = $.post( url, { email: addUserEmail, chatId: addUserChat} );
 
-            /* Alerts the results */
             posting.done(function( data ) {
                 var modal = document.getElementById('addUserModal');
                 modal.style.display = "none";
@@ -332,6 +301,22 @@
         });
     </script>
 
+    <script>
+       $("#logoutForm").submit(function(event) {
+            event.preventDefault();
+            var $form = $( this ),
+                url = $form.attr( 'action' );
+
+            var posting = $.post( url);
+
+            posting.done(function( data ) {
+                location.replace("http://localhost:3000/login");
+            });
+            posting.fail(function(data) {
+                $("#logoutForm").append("<p style=\"font: 18px \"Trebuchet MS\", Helvetica;\">"+JSON.stringify(data.responseText));
+            });
+        });
+    </script>
 </body>
 
 </html>

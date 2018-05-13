@@ -5,6 +5,7 @@ var ChatSchema = new mongoose.Schema({
     name: {
         type: String,
         require: true,
+        minlength: 1,
         maxlength: 25,
         trim: true,
     },

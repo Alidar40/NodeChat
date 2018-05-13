@@ -11,15 +11,16 @@
         <div class="intro">
             <p>Welcome to NodeChat!</p>
             <p>Please, log in</p>
+            <p id="error"></p>
         </div>
         <hr class="hr">
         <div class="login">
-            <form method="post" action="/login">
+            <form action="/api/login" mehod="post">
                 <label>E-mail</label><br>
-                <input class="input" type="text" name="email"  /><br><br>
+                <input class="input" type="email" name="email" id="email" required minlength="1"/><br><br>
 
                 <label>Password</label><br>
-                <input class="input" type="password" name="password"  /><br><br>
+                <input class="input" type="password" name="password" id="password" required minlength="6" maxlength="30"/><br><br>
 
                 <button class="btn login-submit-btn" type="submit" name="submit">Sign in</button>
                 <button class="btn login-submit-btn" ><a href="/register" style="text-decoration:none; color: black">Register</a></button>
@@ -27,6 +28,27 @@
             
         </div>
     </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/libs/jquery-3.3.1.min.js"></script>
+    <script>
+       $("form").submit(function(e) {
+            e.preventDefault();
+            var $form = $( this ), url = $form.attr( 'action' );
+
+            var email = $('#email').val();
+            var password = $('#password').val();
+            var posting = $.post( url, { email: email, password: password} );
+
+            posting.done(function( data ) {
+                window.location = "chats";
+            });
+            posting.fail(function(data) {
+                $("#error").empty();
+                $("#error").append("<p style=\"color: red; width: 70%\">"+ data.responseText + "</p>");
+            });
+        });
+    </script>
     
 </body>
 

@@ -76,7 +76,6 @@
 }
 
 .message-input{
-    /*padding: 8px 5px;*/
     position: fixed;
     bottom: 0;
     left: 15%;
@@ -84,7 +83,6 @@
     height: 3.4%;
     font: 18px "Trebuchet MS", Helvetica;
     font-weight: lighter;
-    /*border: 1px solid green;*/
 }
 
 .messages{
@@ -95,7 +93,7 @@
     left: 15%;
     size: 100%;
     width: 85%;
-    height: 100%;
+    height: 92%;
     list-style-type: none;
     overflow-y: scroll;
 }
@@ -116,12 +114,6 @@
 .messages.title{
     display:block;
 }
-/*.messages.title h4{
-    font-weight:600;
-    margin-right:10px
-}
-.messages.title span
-{color:#999}@media (max-width:600px){*{font-size:1rem}*/
 
 .messages.author{
     position: relative;
@@ -147,23 +139,28 @@
 
 
 .chats-container{
-    background: #a7dba7;/*#2a2c36;*/
+    background: #a7dba7;
     color: #eee;
     position: fixed;
-    height: 97%;
+    height: 95.2%;
     width: 15%;
     bottom: 0;
     left: 0;
-    /*margin: 0;*/
-    /*overflow-y: scroll;*/
+    margin: 0;
+    padding: 0;
+    overflow-y: scroll;
 }
 
 .chats{
     list-style-type:none;
-    left: 0;
+    margin-left: 0px;
+    left: 0%;
     height: 100%;
     bottom: 0;
     overflow-y: auto;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .chats-list{
@@ -203,16 +200,6 @@
     color: white;
 }
 
-/*#new-chat{
-    padding: 8px 5px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    size: 30px;
-    width: 290px;
-    margin: 0;
-}*/
-
 #send-message-btn{
     size: 10%;
     background: url(https://cdn3.iconfinder.com/data/icons/communication-148/44/communication-16-512.png);
@@ -220,7 +207,6 @@
     background-size:34px 34px;
     background-position: center;
     background-repeat: no-repeat;
-    /*transition: background-color 1s;*/
     color: black; 
     border: 2px solid #4CAF50;
 
@@ -238,74 +224,25 @@
     color: white;
 }
 
-/*#send-message-btn:before {
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    background-color: inherit;
-    content: ' ';
-  }*/
-
-/*#newChatBtn{
-    size: 10%;
-    background-color: white; 
-    color: black; 
-    border: 2px solid #4CAF50;
-
-    padding: 8px 5px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 15%;
-    height: 4%;
-    margin: 0;
-}
-
-#newChatBtn:hover{
-    background-color: #4CAF50;
-    color: white;
-}*/
-
 .dropdown-content input:hover{
     background-color: #4CAF50;
     color: white;
 }
 
-/*#addUserBtn{
-    size: 10%;
-    background-color: white; 
-    color: black; 
-    border: 2px solid #4CAF50;
-
-    padding: 8px 5px;
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    width: 5%;
-    height: 4%;
-    margin: 0;
-}
-
-#addUserBtn:hover{
-    background-color: #4CAF50;
-    color: white;
-}*/
-
-/* The Modal (background) */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    padding-top: 100px; 
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
 }
 
-/* Modal Content */
 .modal-content {
     background-color: #fefefe;
     margin: auto;
@@ -314,7 +251,6 @@
     width: 80%;
 }
 
-/* The Close Button */
 .close {
     color: #aaaaaa;
     float: right;
@@ -328,10 +264,6 @@
     text-decoration: none;
     cursor: pointer;
 }
-
-
-
-
 
 .registration{
     position: absolute;
@@ -351,8 +283,6 @@
     width:70%;
     height: 70%;
     margin: auto;
-    /*border: 3px solid green;
-    border-radius: 4px;*/
     padding: 10px;
 }
 
@@ -374,15 +304,14 @@
     width:70%;
     height: 70%;
     margin: auto;
-    /*border: 3px solid green;
-    border-radius: 4px;*/
     padding: 10px;
 }
 
 .intro{
     position: absolute;
     top: 35%;
-    left: 25%;
+    left: 20%;
+    width: 30%;
     font: 25px "Trebuchet MS", Helvetica;
 }
 
@@ -405,7 +334,7 @@
 }
 
 .btn{
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50;
     border: none;
     border-radius: 8px;
     color: white;
@@ -415,7 +344,7 @@
     display: inline-block;
     font-size: 14px;
     margin: 4px 2px;
-    -webkit-transition-duration: 0.4s; /* Safari */
+    -webkit-transition-duration: 0.4s;
     transition-duration: 0.4s;
     cursor: pointer;
 }

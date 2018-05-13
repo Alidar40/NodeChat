@@ -37,7 +37,7 @@ app.set('view engine', 'hbs');
 
 //-----------CONTROLERS-------------------
 app.get('/', (req, res) => {
-  res.render("index.hbs");
+  res.redirect("chats.hbs");
 });
 
 
@@ -45,44 +45,68 @@ app.get('/register', (req, res) => {
   res.render("registration.hbs");
 });
 
-app.post('/register', (req, res) => {
+app.post('/api/register', (req, res) => {
   var body = _.pick(req.body, ['name', 'email', 'password']);
-  var user = new User(body);
-  
-  user.save().then(() => {
-    return user.generateAuthToken().then((token) => {
-      res.setHeader('x-auth', token);
-      return res.status(201).json(user);
-    });
-    }).catch((e) => {
-      console.log(e);
-      return res.status(400).send(e);
-    })
-    res.redirect('/users');
+  var newUser = new User(body);
+
+  User.findOne({email: body.email}).then((user) => {
+    if(!user){
+      newUser.save().then(() => {
+        return newUser.generateAuthToken().then((token) => {
+          res.clearCookie('x-auth');
+          res.cookie('x-auth', token, {expires: new Date(253402300000000)});
+          return res.status(201).json(newUser);
+        });
+        }).catch((e) => {
+          console.log("token generation error:" + e);
+          return res.status(400).send(e);
+        })
+    }
+    else{
+      console.log("repeated email error");
+      res.status(400).send("User with same e-mail is already registered");
+    }
+  }).catch((e) => {
+    console.log("registration error: " + e);
+    res.status(400).send(e);
+  });
 });
 
 app.get('/login', (req, res) => {
   res.render("login.hbs");
 });
 
-app.post('/login', (req, res) => {
+app.post('/api/login', (req, res) => {
   var body = _.pick(req.body, ['email', 'password']);
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   
+  if(req.cookies['x-auth'] !== undefined)
+  {
+    res.redirect('/chats');
+    res.status(200).send();
+  }
+  
   User.findByCredentials(body.email, body.password).then((user) => {
+    if (!user){
+      console.log("login form error");
+      return res.status(400).send("Invalid email or password");
+    }
+
     return user.generateAuthToken().then((token) => {
       res.clearCookie('x-auth');
       res.cookie('x-auth', token, {expires: new Date(253402300000000)});
-      return res.redirect('/chats');
+      return res.status(200).send();
     });
   }).catch((e) => {
-    console.log(e);
-    res.status(400).send(e);
+    console.log("login error " + e);
+    res.status(400).send("Invalid email or password");
   });
 });
 
-app.delete('/users/me/token', authenticate, (req, res) => {
+app.post('/api/logout', authenticate, (req, res) => {
+  //res.status(200).send();
   req.user.removeToken(req.token).then(() => {
+    res.clearCookie('x-auth');
     res.status(200).send();
   }), () => {
     res.status(400).send();
@@ -169,49 +193,49 @@ app.get('/api/getMessages', authenticate, (req, res) => {
   });
 })
 
-app.get('/api/getChatUsers', authenticate,  isChatMember, (req, res) => {
+app.get('/api/getChatUsers', authenticate, (req, res) => {
   var chatMembersIds;
-  Chat.findOne({_id: req.query.chatId}).then(function(chat) {
+  //console.log(req.query.chatId);
+
+  Chat.findOne({_id: new ObjectID(req.query.chatId)}).then(function(chat) {
     if(!chat){
       throw new Error('(from: /api/getChatUsers) No record found.');
     } 
     chatMembersIds = chat.membersIds;
-    //res.send(chat.membersIds);
-  });
+    
+    var users = [];
+    var index;
+    number_processed = 0;
+    total = req.user.chats.length;
+    res.setHeader('Content-Type', 'application/json');
+    
+    for(index = 0; index < chatMembersIds.length; ++index) {
+      element = chatMembersIds[index].id;
+      try {
+        var id = new ObjectID(element);
+      } catch (e) {
+        next(404);
+        return;
+      }
 
-  var users = [];
-  var index;
-  number_processed = 0;
-  total = req.user.chats.length;
-  res.setHeader('Content-Type', 'application/json');
-  
-  for(index = 0; index < chatMembersIds.length; ++index) {
-    element = chatMembersIds[index];
-    try {
-      var id = new ObjectID(element);
-    } catch (e) {
-      next(404);
-      return;
+      User.findById(id, function(err, user, next) {
+        if (err) return next(err);
+        
+        if (!user) {
+          return next;
+          //return next(404);
+        }
+        users.push(user);
+
+        number_processed++;
+        
+        if(number_processed == chatMembersIds.length)
+        {
+          res.send(users);
+        }
+      });
     }
-
-    User.findById(id, function(err, user, next) {
-      if (err) return next(err);
-      
-      if (!user) {
-        return next;
-        //return next(404);
-      }
-
-      users.push(user);
-
-      number_processed++;
-      
-      if(number_processed == chatMembersIds.length)
-      {
-        res.send(users)
-      }
-    });
-  }
+  });
 })
 
 app.post('/api/createChat', authenticate, (req, res) => {
@@ -231,7 +255,7 @@ app.post('/api/createChat', authenticate, (req, res) => {
     res.status(400).send(e);
   })
 
-  newMsg = new Messages({"chatId": newChat._id, "messages": [{"authorsId": req.user._id, "message": req.user.name + " создал чат"}]});
+  newMsg = new Messages({"chatId": newChat._id, "messages": [{"authorsId": req.user._id, "authorsName": req.user.name, "message": req.user.name + " создал чат"}]});
   newMsg.save();
 });
 
@@ -276,6 +300,8 @@ app.post('/api/addUser', authenticate, isChatMember, (req, res) => {
         }
       });
     }
+  }).catch((e) => {
+    res.status(400).send(e);
   });
 });
 

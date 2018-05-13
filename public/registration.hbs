@@ -10,18 +10,19 @@
     <div class="registration-container">
         <div class="intro">
             <p>Registration in NodeChat</p>
+            <p id="error"></p>
         </div>
         <hr class="hr">
         <div class="registration">
-            <form action="/register" method="post">
+            <form action="/api/register" method="post">
                 <label>Name</label><br>
-                <input class="input" type="text" name="name" /><br><br>
+                <input class="input" type="text" name="name" id="name" required  minlength="1" maxlength="30"/><br><br>
 
                 <label>E-mail</label><br>
-                <input class="input" type="text" name="email" /><br><br>
+                <input class="input" type="email" name="email" id="email" required minlength="1"/><br><br>
 
                 <label>Password</label><br>
-                <input class="input" type="password" name="password" /><br><br>
+                <input class="input" type="password" name="password" id="password" required minlength="6" maxlength="30"/><br><br>
 
                 <button class="btn registration-submit-btn" type="submit" name="submit">Register</button>
             </form>
@@ -32,14 +33,21 @@
     <script src="/js/libs/jquery-3.3.1.min.js"></script>
     <script>
        $("form").submit(function(e) {
-            e.preventDefault(); // Prevents the page from refreshing
-            var $this = $(this); // `this` refers to the current form element
-            $.post(
-                $this.attr("action"), // Gets the URL to sent the post to
-                $this.serialize(), // Serializes form data in standard format
-                function(data) { /** code to handle response **/ },
-                "json" // The format the response should be in
-            );
+            e.preventDefault();
+            var $form = $( this ), url = $form.attr( 'action' );
+
+            var name = $('#name').val();
+            var email = $('#email').val();
+            var password = $('#password').val();
+            var posting = $.post( url, { name: name, email: email, password: password} );
+
+            posting.done(function( data ) {
+                window.location = "chats";
+            });
+            posting.fail(function(data) {
+                $("#error").empty();
+                $("#error").append("<p style=\"color: red; width: 70%\">"+ data.responseText + "</p>");
+            });
         });
     </script>
     
