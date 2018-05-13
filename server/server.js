@@ -18,6 +18,7 @@ var {User} = require('./models/user');
 var {Chat} = require('./models/chat');
 var {Messages} = require('./models/messages')
 var {authenticate} = require('./middleware/authenticate');
+var {isChatMember} = require('./middleware/isChatMember');
 
 const publicPath = path.join(__dirname, '../public');
 var app = express();
@@ -168,6 +169,51 @@ app.get('/api/getMessages', authenticate, (req, res) => {
   });
 })
 
+app.get('/api/getChatUsers', authenticate,  isChatMember, (req, res) => {
+  var chatMembersIds;
+  Chat.findOne({_id: req.query.chatId}).then(function(chat) {
+    if(!chat){
+      throw new Error('(from: /api/getChatUsers) No record found.');
+    } 
+    chatMembersIds = chat.membersIds;
+    //res.send(chat.membersIds);
+  });
+
+  var users = [];
+  var index;
+  number_processed = 0;
+  total = req.user.chats.length;
+  res.setHeader('Content-Type', 'application/json');
+  
+  for(index = 0; index < chatMembersIds.length; ++index) {
+    element = chatMembersIds[index];
+    try {
+      var id = new ObjectID(element);
+    } catch (e) {
+      next(404);
+      return;
+    }
+
+    User.findById(id, function(err, user, next) {
+      if (err) return next(err);
+      
+      if (!user) {
+        return next;
+        //return next(404);
+      }
+
+      users.push(user);
+
+      number_processed++;
+      
+      if(number_processed == chatMembersIds.length)
+      {
+        res.send(users)
+      }
+    });
+  }
+})
+
 app.post('/api/createChat', authenticate, (req, res) => {
   
   var body = _.pick(req.body, ['name']);
@@ -189,17 +235,9 @@ app.post('/api/createChat', authenticate, (req, res) => {
   newMsg.save();
 });
 
-app.post('/api/addUser', authenticate, (req, res) => {
-  var user = req.user;
-
+app.post('/api/addUser', authenticate, isChatMember, (req, res) => {
   chatId = req.body.addUserChat;
   newUserEmail = req.body.addUserEmail; 
-
-  if(!user.chats.find((el) => {
-    return el.id == chatId;
-  })){
-    return res.status(403).send("You heve not permissions to invite users in this chat");
-  }
 
   var newUser;
   User.findOne({email: newUserEmail}).then((user) => {

@@ -1,9 +1,86 @@
+.navbar-container{
+    left: 0;
+    top: 0;
+    position: fixed;
+    width:100%;
+    height:5%;
+    z-index: 999;
+}
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+.navbar-el {
+    float: left;
+}
+
+#logo{
+    left: 0;
+    text-align: center;
+    width:15%;
+}
+
+#chatname-container{
+    display: none;
+    left: 0;
+    text-align: center;
+    width:15%;
+}
+
+.navbar-el a, .dropbtn {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar-el a:hover, .dropdown:hover .dropbtn {
+    width:90%;
+    background-color: green;
+}
+
+.navbar-el.dropdown {
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    width: 15%;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content input {
+    width: 100%;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content input:hover {
+    background-color: #838383b2;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
 .message-input{
     /*padding: 8px 5px;*/
     position: fixed;
     bottom: 0;
     left: 15%;
-    width: 74.8%;
+    width: 82.7%;
     height: 3.4%;
     font: 18px "Trebuchet MS", Helvetica;
     font-weight: lighter;
@@ -19,21 +96,25 @@
     size: 100%;
     width: 85%;
     height: 100%;
-    overflow: scroll;
+    list-style-type: none;
+    overflow-y: scroll;
 }
 
+.message-content{
+    -ms-word-break: break-all;
+    word-break: break-all;
+}
 .messages.element{
     bottom: 0;
     left: 15%;
-    width: 74.8%;
+    width: 69.8%;
     height: 3.4%;
     font: 18px "Trebuchet MS", Helvetica;
     font-weight: lighter;
 }
 
 .messages.title{
-    display:flex;
-    margin-bottom:5px
+    display:block;
 }
 /*.messages.title h4{
     font-weight:600;
@@ -43,15 +124,25 @@
 {color:#999}@media (max-width:600px){*{font-size:1rem}*/
 
 .messages.author{
+    position: relative;
+    top: 0;
     margin-right:10px;
     font: 15px "Trebuchet MS", Helvetica;
     font-weight: lighter;
-    display: inline;
 }
 
 .messages.date{
     font: 3px "Trebuchet MS", Helvetica;
     font-weight: lighter;
+    text-align: right;
+}
+
+.userlogo{
+    size: 24px 24px;
+    padding: 8px 5px;
+    width: 40px;
+    height: 4%;
+    margin: 0;
 }
 
 
@@ -59,9 +150,9 @@
     background: #a7dba7;/*#2a2c36;*/
     color: #eee;
     position: fixed;
-    height: 100%;
+    height: 97%;
     width: 15%;
-    top: 0;
+    bottom: 0;
     left: 0;
     /*margin: 0;*/
     /*overflow-y: scroll;*/
@@ -70,7 +161,8 @@
 .chats{
     list-style-type:none;
     left: 0;
-    height: 94%;
+    height: 100%;
+    bottom: 0;
     overflow-y: auto;
 }
 
@@ -79,7 +171,7 @@
     color: black; 
     border: 2px solid #4CAF50;
     padding: 8px 5px;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
     height: 4%;
@@ -121,29 +213,39 @@
     margin: 0;
 }*/
 
-
-
-#send-message{
+#send-message-btn{
     size: 10%;
-    background-color: white; 
+    background: url(https://cdn3.iconfinder.com/data/icons/communication-148/44/communication-16-512.png);
+    background-color: white;
+    background-size:34px 34px;
+    background-position: center;
+    background-repeat: no-repeat;
+    /*transition: background-color 1s;*/
     color: black; 
     border: 2px solid #4CAF50;
 
     padding: 8px 5px;
     position: fixed;
     bottom: 0;
-    right: 5%;
-    width: 5%;
+    right: 0;
+    width: 40px;
     height: 4%;
     margin: 0;
 }
 
-#send-message:hover{
+#send-message-btn:hover{
     background-color: #4CAF50;
     color: white;
 }
 
-#newChatBtn{
+/*#send-message-btn:before {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: inherit;
+    content: ' ';
+  }*/
+
+/*#newChatBtn{
     size: 10%;
     background-color: white; 
     color: black; 
@@ -161,9 +263,14 @@
 #newChatBtn:hover{
     background-color: #4CAF50;
     color: white;
+}*/
+
+.dropdown-content input:hover{
+    background-color: #4CAF50;
+    color: white;
 }
 
-#addUserBtn{
+/*#addUserBtn{
     size: 10%;
     background-color: white; 
     color: black; 
@@ -181,7 +288,7 @@
 #addUserBtn:hover{
     background-color: #4CAF50;
     color: white;
-}
+}*/
 
 /* The Modal (background) */
 .modal {

@@ -7,18 +7,33 @@
 </head>
 
 <body>
+
+    <nav class="navbar-container">
+        <ul class="navbar">
+            <li class="navbar-el dropdown" id="logo">
+                <a href="javascript:void(0)" class="dropbtn" >NodeChat</a>
+                <div class="dropdown-content">
+                    <input type="button" value="New chat" id="newChatBtn" onclick="openNewChatModal()"></input>
+                    <input type="button" value="Log out"></input>
+                </div>
+            </li>
+            <li class="navbar-el dropdown" id="chatname-container">
+                <a href="javascript:void(0)" class="dropbtn chat-name" id="chatname"></a>
+                <div class="dropdown-content">
+                    <input type="button" value="Users" id="viewUserBtn" onclick="openViewUserModal()"></input>
+                    <input type="button" value="Invite user" id="addUserBtn" onclick="openAddUserModal()"></input>
+                    <input type="button" value="Leave chat"></input>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
     <div class="chats-container" >
         <ul class="chats" id="chats"></ul>
-
-        
     </div>
+     
     
-    <!-- Trigger/Open The Modal  -->
-    <button id="newChatBtn" onclick="openNewChatModal()">New chat</button> 
-
-    <!-- The Modal -->
     <div id="newChatModal" class="modal">
-        <!-- Modal content -->
         <div class="modal-content">
             <span class="close">&times;</span>
 
@@ -30,6 +45,14 @@
             </form>
         </div>
     </div>
+
+    <div id="viewUsersModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <label style="font: 18px \"Trebuchet MS\", Helvetica;">Users: </label><br>
+            <ul id="current-chat-users"></ul>
+        </div>
+    </div>
     
     <ul id="messages" class="messages"></ul>
 
@@ -39,17 +62,12 @@
             <div id="current-chat">
                 <div id=""></div>
             </div>
-            <button id="send-message">Send</button>
+            <button id="send-message-btn"></button>
         </form>
     </div>
 
-    <!-- Trigger/Open The Modal -->
-    <button id="addUserBtn" onclick="openAddUserModal()">Add user</button>
     
-
-    <!-- The Modal -->
     <div id="addUserModal" class="modal">
-        <!-- Modal content -->
         <div class="modal-content">
             <span class="close">&times;</span>
 
@@ -75,12 +93,17 @@
             });
             socket.on('send message', (authorsName, msg, chatId) => {
                 var dt = new Date();
-                var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+                var time = dt.getUTCHours() + ":" + dt.getMinutes() + " " + dt.getDate() + "." + pad2(dt.getMonth()) + "." + dt.getFullYear().toString().substring(2, 4);
                 if (chatId == $('#current-chat').children('div').attr('id')){
-                    $('#messages').append("<li class=\"element\">" + "<div class=\"title\">" + "<h4 class=\"author\" style=\"display: inline; font: 15px\">" + authorsName + " " + "</h4>" + "<label class=\"date\">" +  time.substring(11, 16) + " " + time.substring(0, 10) + "</label>" + "</div>" + "<p>" + msg +"</p>" + "</li>");
-                    $('#messages').scroll();
+                    $('#messages').append("<li class=\"element\">" + "<img class=\"userlogo\" align=\"left\" src=\"https://cdn1.iconfinder.com/data/icons/rcons-user-action/512/user-512.png\" alt=\"User logo\">" + "<div class=\"title\">" + "<h4 class=\"author\" style=\"display: inline; font: 15px\">" + authorsName + " " + "</h4>" + "<label class=\"date\">" +  time + "</label>" + "</div>" + "<p class=\"message-content\">" + msg +"</p>" + "</li>");
+                    $('#messages').animate({scrollTop: $('#messages').prop("scrollHeight")}, 500);
                 }
-                document.getElementById(chatId).classList.add("chats-list-new-message")
+                else{
+                    document.getElementById(chatId).classList.add("chats-list-new-message");
+                }
+                function pad2(number) {
+                    return (number < 10 ? '0' : '') + number
+                }
             });
         });
     </script>
@@ -94,9 +117,8 @@
                     dataType: "json",
                     success: function(data){
                         var index;
-                        for(i = 0; i < data.length; i++)
-                        {
-                            $("#chats").append("<li>" + "<button class=\"chats-list\" id=\"" + data[i]._id.trim() + "\"  onclick=\"getChatId(\'" + data[i]._id.trim() + "\')\" >"  + data[i].name + "</button>" +"</li>");
+                        for(i = 0; i < data.length; i++){
+                            $("#chats").append("<li>" + "<button class=\"chats-list\" id=\"" + data[i]._id.trim() + "\"  onclick=\"getChatId(\'" + data[i]._id.trim() + "'" + ", '" + data[i].name + "')\" >"  + data[i].name + "</button>" +"</li>");
                         }
                     }
                 });
@@ -105,9 +127,16 @@
     </script>
 
     <script>
-        function getChatId (chatId) {
+        function getChatId (chatId, chatName) {
             $("#current-chat").children('div').attr('id', chatId);
             $("#addUserChat").attr('value', chatId);
+            var chatname_cont = document.getElementById("chatname-container");
+            var chatname_el = document.getElementById("chatname");
+            //console.log($("#chatname-container"));
+            //$("#chatname").empty();
+            //$("#chatname").append("" + chatName);
+            chatname_cont.style.display = "block";
+            chatname_el.innerHTML = chatName;
             $('#messages').empty();
             document.getElementById(chatId).classList.remove("chats-list-new-message")
             $.ajax({
@@ -118,12 +147,13 @@
                     },
                     success: function(data){
                         var index;
-                        for(i = 0; i < data.length; i++)
-                        {
-                            console.log(typeof data[i].created);
-                            $('#messages').append("<li class=\"element\">" + "<div class=\"title\">" + "<h4 class=\"author\" style=\"display: inline; font: 15px\">" + data[i].authorsName + " " + "</h4>" + "<label class=\"date\">" +  data[i].created.substring(11, 16) + " " +data[i].created.substring(0, 10) + "</label>" + "</div>" + "<p>" + data[i].message +"</p>" + "</li>");
-                            $('#messages').scroll();
+
+                        for(i = 0; i < data.length; i++){
+                            var dt = data[i].created;
+                            var time = data[i].created.substring(11, 16) + " " + data[i].created.substring(8, 10) + "." + data[i].created.substring(5, 7) + "." + data[i].created.substring(2, 4);
+                            $('#messages').append("<li class=\"element\">" + "<img class=\"userlogo\" align=\"left\" src=\"https://cdn1.iconfinder.com/data/icons/rcons-user-action/512/user-512.png\" alt=\"User logo\">" + "<div class=\"title\">" + "<h4 class=\"author\" style=\"display: inline; font: 15px\">" + data[i].authorsName + " " + "</h4>" + "<label class=\"date\">" +  time + "</label>" + "</div>" + "<p class=\"message-content\">" + data[i].message +"</p>" + "</li>");
                         }
+                        $('#messages').animate({scrollTop: $('#messages').prop("scrollHeight")});
                     }
             });
         }
@@ -135,15 +165,15 @@
             var modal = document.getElementById('newChatModal');
 
             // Get the button that opens the modal
-            var btn = document.getElementById("newChatBtn");
+            //var btn = document.getElementById("newChatBtn");
 
             // Get the <span> element that closes the modal
             var span = document.getElementsByClassName("close")[0];
 
             // When the user clicks the button, open the modal 
-            btn.onclick = function() {
+            //btn.onclick = function() {
                 modal.style.display = "block";
-            }
+            //}
 
             // When the user clicks on <span> (x), close the modal
             span.onclick = function() {
@@ -165,15 +195,15 @@
             var modal = document.getElementById('addUserModal');
 
             // Get the button that opens the modal
-            var btn = document.getElementById("addUserBtn");
+            //var btn = document.getElementById("addUserBtn");
 
             // Get the <span> element that closes the modal
             var span = document.getElementsByClassName("close")[0];
 
             // When the user clicks the button, open the modal 
-            btn.onclick = function() {
+            //btn.onclick = function() {
                 modal.style.display = "block";
-            }
+            //}
 
             // When the user clicks on <span> (x), close the modal
             span.onclick = function() {
@@ -186,6 +216,71 @@
                     modal.style.display = "none";
                 }
             }
+        }
+    </script>
+
+    <script>
+        function openViewUserModal(){
+            // Get the modal
+            var modal = document.getElementById('viewUsersModal');
+
+            // Get the button that opens the modal
+            //var btn = document.getElementById("addUserBtn");
+
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+
+            // When the user clicks the button, open the modal 
+            //btn.onclick = function() {
+                modal.style.display = "block";
+            //}
+
+            
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            var users = document.getElementById("current-chat-users");
+            var chatId = document.getElementById("current-chat");
+            users.append("!!!!!");
+
+            $.ajax({
+                    url: "/api/getChatUsers",
+                    type: 'GET',
+                    data: {
+                        chatId: chatId
+                    },
+                    success: function(data){
+                        var index;
+                        console.log(data);
+                        users.append(data);
+                        users.append(JSON.stringify(data.responseText));
+                        console.log(JSON.stringify(data.responseText));
+                        for(i = 0; i < data.length; i++){
+                            //console.log(typeof data[i]);
+                        }
+                    }
+                    /*fail: function(data){
+                        console.log(JSON.stringify(data.responseText));
+                    }*/
+            });
+
+            /*var getting = $.get( /api/getChatUsers, { chatId: chatId} );
+
+            getting.done(function( data ) {
+                console.log(data);
+            });
+            getting.fail(function(data) {
+                console.log(JSON.stringify(data.responseText));
+            });*/
         }
     </script>
 
@@ -221,15 +316,15 @@
                 url = $form.attr( 'action' );
 
             /* Send the data using post with element id name*/
-            var addUserEmail = $('#addUserEmail').val();
-            var addUserChat = $('#addUserChat').val();
-            var posting = $.post( url, { addUserEmail: addUserEmail, addUserChat: addUserChat} );
+            var email = $('#addUserEmail').val();
+            var chatId = $('#addUserChat').val();
+            var posting = $.post( url, { email: addUserEmail, chatId: addUserChat} );
 
             /* Alerts the results */
             posting.done(function( data ) {
                 var modal = document.getElementById('addUserModal');
                 modal.style.display = "none";
-                socket.emit('send message', "User with email " + addUserEmail + " joined via invitation", addUserChat);
+                socket.emit('send message', "User with email " + email + " joined via invitation", chatId);
             });
             posting.fail(function(data) {
                 $("#addUserForm").append("<p style=\"font: 18px \"Trebuchet MS\", Helvetica;\">"+JSON.stringify(data.responseText));

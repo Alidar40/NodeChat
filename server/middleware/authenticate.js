@@ -6,6 +6,7 @@ var authenticate = (req, res, next) => {
 
     User.findByToken(token).then((user) => {
         if (!user) {
+            res.redirect("/login");
             return Promise.reject();
         }
 
