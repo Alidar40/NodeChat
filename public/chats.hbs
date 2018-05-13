@@ -22,7 +22,7 @@
                 <div class="dropdown-content">
                     <input type="button" value="Users" id="viewUserBtn" onclick="openViewUserModal()"></input>
                     <input type="button" value="Invite user" id="addUserBtn" onclick="openAddUserModal()"></input>
-                    <input type="button" value="Leave chat" onclick="leaveChat()"></input>
+                    <input type="button" value="Leave chat" id="leaveChatBtn" onclick="openLeaveChatModal()"></input>
                 </div>
             </li>
         </ul>
@@ -74,6 +74,17 @@
                 <label style="font: 18px \"Trebuchet MS\", Helvetica;">Are you sure you want to log out?</label><br>
                 <button class="btn model-btn" type="submit" name="submit">YES!</button>
             </form>
+        </div>
+    </div>
+
+    <div id="leaveChatModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="leaveChatForm" method="post" action="/api/leaveChat">
+                <label style="font: 18px \"Trebuchet MS\", Helvetica;">Are you sure you want to log out?</label><br>
+                <button class="btn model-btn" type="submit" name="submit">YES!</button>
+            </form>
+            <p id="leavechat-error"></p>
         </div>
     </div>
 
@@ -220,6 +231,41 @@
                     modal.style.display = "none";
                 }
             }
+        }
+    </script>
+
+    <script>
+        function openLeaveChatModal(){
+            var modal = document.getElementById('leaveChatModal');
+            var span = document.getElementsByClassName("close")[0];
+            modal.style.display = "block";
+            
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            $("form").submit(function(e) {
+                e.preventDefault();
+                var $form = $( this ), url = $form.attr( 'action' );
+
+                var chatId = $('#current-chat').children('div').attr('id');
+                var posting = $.post( url, { chatId: chatId} );
+
+                posting.done(function( data ) {
+                    location.reload();
+                });
+
+                posting.fail(function(data) {
+                    $("#leavechat-error").empty();
+                    $("#leavechat-error").append("<p style=\"color: red; width: 70%\">"+ data.responseText + "</p>");
+                });
+            });
         }
     </script>
 

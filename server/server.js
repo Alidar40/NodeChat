@@ -59,16 +59,13 @@ app.post('/api/register', (req, res) => {
           return res.status(201).json(newUser);
         });
         }).catch((e) => {
-          console.log("token generation error:" + e);
           return res.status(400).send(e);
         })
     }
     else{
-      console.log("repeated email error");
       res.status(400).send("User with same e-mail is already registered");
     }
   }).catch((e) => {
-    console.log("registration error: " + e);
     res.status(400).send(e);
   });
 });
@@ -89,7 +86,6 @@ app.post('/api/login', (req, res) => {
   
   User.findByCredentials(body.email, body.password).then((user) => {
     if (!user){
-      console.log("login form error");
       return res.status(400).send("Invalid email or password");
     }
 
@@ -99,13 +95,11 @@ app.post('/api/login', (req, res) => {
       return res.status(200).send();
     });
   }).catch((e) => {
-    console.log("login error " + e);
     res.status(400).send("Invalid email or password");
   });
 });
 
 app.post('/api/logout', authenticate, (req, res) => {
-  //res.status(200).send();
   req.user.removeToken(req.token).then(() => {
     res.clearCookie('x-auth');
     res.status(200).send();
@@ -164,11 +158,9 @@ app.get('/api/chats', authenticate, (req, res, next) => {
       
       if (!chat) {
         return next;
-        //return next(404);
       }
 
       chats.push(chat);
-
       number_processed++;
       
       if(number_processed == req.user.chats.length)
@@ -177,7 +169,6 @@ app.get('/api/chats', authenticate, (req, res, next) => {
       }
     });
   }
-
 });
 
 app.get('/chats', authenticate, (req, res, next) => {  
@@ -196,14 +187,13 @@ app.get('/api/getMessages', authenticate, (req, res) => {
 
 app.get('/api/getChatUsers', authenticate, (req, res) => {
   var chatMembersIds;
-  //console.log(req.query.chatId);
 
   Chat.findOne({_id: new ObjectID(req.query.chatId)}).then(function(chat) {
     if(!chat){
       throw new Error('(from: /api/getChatUsers) No record found.');
     } 
+
     chatMembersIds = chat.membersIds;
-    
     var users = [];
     var index;
     number_processed = 0;
@@ -226,8 +216,8 @@ app.get('/api/getChatUsers', authenticate, (req, res) => {
           return next;
           //return next(404);
         }
-        users.push(user);
 
+        users.push(user);
         number_processed++;
         
         if(number_processed == chatMembersIds.length)
@@ -240,7 +230,6 @@ app.get('/api/getChatUsers', authenticate, (req, res) => {
 })
 
 app.post('/api/createChat', authenticate, (req, res) => {
-  
   var body = _.pick(req.body, ['name']);
   var newChat = new Chat({
     name: req.body.name,
@@ -263,11 +252,9 @@ app.post('/api/createChat', authenticate, (req, res) => {
 app.post('/api/addUser', authenticate, isChatMember, (req, res) => {
   chatId = req.body.addUserChat;
   newUserEmail = req.body.addUserEmail; 
-
   var newUser;
   User.findOne({email: newUserEmail}).then((user) => {
     if (!user) {
-      //throw new Error('(from: /api/addUser) user was not found.');
       return res.status(404).send("user was not found");
     }
     else{
@@ -276,7 +263,6 @@ app.post('/api/addUser', authenticate, isChatMember, (req, res) => {
       if(newUser.chats.find((el) => {
         return el.id == chatId;
       })){
-        //return res.status(400).send({"message": "User is already in this chat"});
         return res.status(400).send("User is already in this chat");
       }
 
@@ -287,7 +273,6 @@ app.post('/api/addUser', authenticate, isChatMember, (req, res) => {
         }
         else{
           var chat = _chat;
-          
           chat.membersIds.push({id: newUser._id});
 
           chat.save().then(() => {
@@ -311,19 +296,15 @@ app.post('/api/leaveChat', authenticate, (req, res) => {
   chatId = req.body.chatId;
   async.waterfall([
     function(callback) {
-      //Получаем чат по id
       Chat.findOne({_id: chatId}, callback);
     },
     function(chat, callback) {
-      
-      
       user.leaveChat(chatId).then(() => {
       })
       
       chat.removeUser(user._id).then(() => {
         res.status(201).send();
       })
-      
     },
   ], function(err) {
     log.error(err)
@@ -341,19 +322,15 @@ app.use(function(err, req, res, next) {
     res.sendHttpError(err);
   });
 
-
   io.on('connection', (socket) => {
     log.info('user connected');
     var cookies = cookie.parse(socket.handshake.headers.cookie, 'x-auth');
     var userId = cookies['x-auth']
     
-    
-
     //Получение пользователя по его куке
     User.findByToken(userId).then((user) => {
       //Привязка сокета к id пользователя
       socket.join(user.id)
-
       socket.on('send message', (msg, id) => {
           if (id === ""){
             return;
@@ -386,18 +363,14 @@ app.use(function(err, req, res, next) {
                 
               });
           }).catch((e) => {
-              console.log(e);
               res.status(400).send(e);
           });
-
-
         });
     });
 
     socket.on('disconnect', () => {
         log.info('user disconnected');
     });
-
 });
 
 server.listen(port, () => {
