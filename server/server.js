@@ -38,7 +38,7 @@ app.set('view engine', 'hbs');
 
 //-----------CONTROLERS-------------------
 app.get('/', (req, res) => {
-  res.redirect("chats.hbs");
+  res.redirect("/chats");
 });
 
 
